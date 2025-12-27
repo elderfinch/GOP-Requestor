@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GOP Request App</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --primary: #0445AF;
+            --primary-dark: #03368a;
+            --bg: #fafafa;
+            --text: #1d1d1f;
+            --text-light: #86868b;
+            --border: #d2d2d7;
+            --error: #e02020;
+            --card-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            padding: 24px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .screen.active { display: flex; }
+
+        /* Header & Lang Toggle */
+        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .lang-toggle {
+            background: #fff; border: 1px solid var(--border);
+            padding: 8px 12px; border-radius: 20px;
+            font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: 0.2s;
+        }
+        .lang-toggle:active { transform: scale(0.95); }
+
+        h1 { font-size: 1.8rem; font-weight: 600; color: var(--primary); margin: 0 0 8px 0; }
+        h2 { font-size: 1.5rem; font-weight: 400; margin: 0 0 10px 0; color: var(--text); }
+        .sub-text { font-size: 1rem; color: var(--text-light); display: block; margin-bottom: 25px; line-height: 1.5; }
+        
+        /* Inputs */
+        .tf-input-group { width: 100%; margin-bottom: 10px; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"] {
+            width: 100%; background: transparent; border: none;
+            border-bottom: 2px solid var(--border); font-size: 1.5rem;
+            padding: 8px 0; border-radius: 0; color: var(--primary);
+            outline: none; transition: border-color 0.3s; font-family: 'Inter', sans-serif;
+        }
+        input:focus { border-color: var(--primary); }
+        input::placeholder { color: #d2d2d7; }
+
+        /* Phone */
+        .phone-row { display: flex; gap: 15px; align-items: flex-end; }
+        .phone-select {
+            border: none; border-bottom: 2px solid var(--border);
+            background: transparent; font-size: 1.2rem; padding: 8px 0;
+            width: 100px; color: var(--text); border-radius: 0;
+        }
+
+        /* Profile Cards */
+        .profile-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px; margin-top: 10px; padding-bottom: 40px;
+        }
+        .profile-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px 16px; text-align: center;
+            cursor: pointer; transition: all 0.2s ease; position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 180px;
+        }
+        .profile-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        /* Profile Actions (Edit/Delete) */
+        .card-actions {
+            position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;
+        }
+        .action-icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #f0f0f0; color: #666; display: flex;
+            align-items: center; justify-content: center; font-size: 14px;
+            transition: 0.2s; z-index: 5;
+        }
+        .action-icon:hover { background: var(--primary); color: white; }
+        .action-icon.delete:hover { background: var(--error); color: white; }
+
+        .profile-icon { font-size: 42px; margin-bottom: 12px; }
+        .profile-name { font-weight: 600; font-size: 1rem; margin-bottom: 4px; word-break: break-word; }
+        .profile-role { font-size: 0.8rem; color: var(--text-light); }
+        .add-card { border-style: dashed; color: var(--text-light); }
+
+        /* Admin Icon Grid */
+        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 400px; }
+        .icon-opt {
+            background: white; border: 2px solid var(--border); border-radius: 12px;
+            padding: 15px; display: flex; justify-content: center; align-items: center;
+            font-size: 32px; cursor: pointer; transition: 0.2s; color: var(--text-light); height: 80px;
+        }
+        .icon-opt.selected { border-color: var(--primary); color: var(--primary); background: #f0f7ff; }
+
+        /* Slide Engine */
+        .slide-viewer { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .slide { display: none; opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; }
+        .slide.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* Nav */
+        .nav-bar {
+            padding: 16px 24px; background: white; border-top: 1px solid #f0f0f0;
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        }
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 24px; border-radius: 6px; font-size: 1rem; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-ghost { background: transparent; color: var(--text-light); padding: 12px 16px; }
+
+        /* Summary */
+        .summary-box {
+            background: white; border: 1px solid var(--border); border-radius: 12px;
+            padding: 20px; margin-bottom: 24px; max-height: 40vh; overflow-y: auto;
+        }
+        .summary-row {
+            display: flex; flex-direction: column; margin-bottom: 16px;
+            border-bottom: 1px solid #f5f5f7; padding-bottom: 12px;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); margin-bottom: 4px; }
+        .summary-val { font-size: 1rem; font-weight: 500; color: var(--text); }
+
+        .action-stack { display: flex; flex-direction: column; gap: 12px; }
+        .btn-action { width: 100%; justify-content: center; padding: 16px; }
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-copy { background-color: #f5f5f7; color: var(--primary); }
+        
+        .map-helper { font-size: 0.9rem; color: var(--primary); margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-bottom-color: var(--error) !important; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="screen-home" class="screen active">
+            <div class="header-row">
+                <div>
+                    <h1 id="lbl-title">GOP Request</h1>
+                    <p class="sub-text" id="lbl-subtitle">Select an Administrator to begin.</p>
+                </div>
+                <button class="lang-toggle" onclick="app.toggleLang()">🇺🇸 / 🇲🇿</button>
+            </div>
+            
+            <div id="profile-list" class="profile-grid"></div>
+        </div>
+
+        <div id="screen-runner" class="screen">
+            <div style="height: 4px; background: #f0f0f0; position: absolute; top: 0; left: 0; right: 0;">
+                <div id="progress-bar" style="height: 100%; background: var(--primary); width: 0%; transition: width 0.3s;"></div>
+            </div>
+            <div class="slide-viewer" id="slide-container"></div>
+            <div class="nav-bar">
+                <div class="nav-progress" id="step-counter">1 / 5</div>
+                <div class="nav-controls">
+                    <button class="btn btn-ghost" onclick="engine.prev()"><i class="ph ph-arrow-up"></i></button>
+                    <button class="btn" onclick="engine.next()">OK <i class="ph ph-arrow-down"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-summary" class="screen">
+            <h1 id="lbl-summary-title">Review & Send</h1>
+            <p class="sub-text" id="lbl-summary-sub">Please verify the information below.</p>
+            <div class="summary-box" id="summary-content"></div>
+            <div class="action-stack">
+                <button onclick="actions.sendEmail()" class="btn btn-action" id="btn-send-email"><i class="ph ph-envelope-simple"></i> Email (Preferred)</button>
+                <button onclick="actions.sendWhatsapp()" class="btn btn-action btn-whatsapp" id="btn-send-wa"><i class="ph ph-whatsapp-logo"></i> WhatsApp</button>
+                <button onclick="actions.copyText()" class="btn btn-action btn-copy" id="btn-copy"><i class="ph ph-copy"></i> Copy Text</button>
+                <button onclick="app.reset()" class="btn btn-ghost" style="margin-top:10px;" id="btn-restart">Start Over</button>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    // --- TRANSLATIONS ---
+    const STRINGS = {
+        en: {
+            title: "GOP Request",
+            subtitle: "Select an Administrator to begin.",
+            newAdmin: "New Admin",
+            summaryTitle: "Review & Send",
+            summarySub: "Please verify the information below.",
+            btnEmail: "Email (Preferred)",
+            btnWa: "WhatsApp",
+            btnCopy: "Copy Text",
+            btnRestart: "Start Over",
+            greeting: "Greetings,",
+            intro: "Please find the necessary information below for our GOP request:",
+            regards: "Regards,",
+            reqName: "Requestor Name",
+            reqRole: "Requestor Role",
+            reqPhone: "Requestor Phone",
+            patName: "Patient Name",
+            patDob: "Date of Birth",
+            illness: "Illness/Injury",
+            servType: "Service Type",
+            servDate: "Service Date",
+            facName: "Facility Name",
+            facAddr: "Address",
+            facPhone: "Phone",
+            phyName: "Physician",
+            ccEmails: "CC Emails",
+            copySuccess: "Copied!"
+        },
+        pt: {
+            title: "Solicitação GOP",
+            subtitle: "Selecione um administrador para começar.",
+            newAdmin: "Novo Admin",
+            summaryTitle: "Revisar e Enviar",
+            summarySub: "Verifique as informações abaixo.",
+            btnEmail: "E-mail (Preferido)",
+            btnWa: "WhatsApp",
+            btnCopy: "Copiar Texto",
+            btnRestart: "Reiniciar",
+            greeting: "Olá,",
+            intro: "Seguem as informações necessárias para nossa solicitação de GOP:",
+            regards: "Atenciosamente,",
+            reqName: "Solicitante",
+            reqRole: "Cargo",
+            reqPhone: "Telefone",
+            patName: "Nome do Paciente",
+            patDob: "Data de Nascimento",
+            illness: "Doença/Lesão",
+            servType: "Tipo de Serviço",
+            servDate: "Data do Serviço",
+            facName: "Instalação",
+            facAddr: "Endereço",
+            facPhone: "Telefone",
+            phyName: "Médico",
+            ccEmails: "E-mails (CC)",
+            copySuccess: "Copiado!"
+        }
+    };
+
+    // --- ICONS ---
+    const ICONS = {
+        male: '👨‍⚕️', female: '👩‍⚕️', stethoscope: '<i class="ph ph-stethoscope"></i>',
+        aid: '<i class="ph ph-first-aid-kit"></i>', gear: '<i class="ph ph-user-gear"></i>',
+        plus: '<i class="ph ph-plus"></i>'
+    };
+
+    // --- APP ENGINE ---
+    const app = {
+        lang: 'en',
+        admins: JSON.parse(localStorage.getItem('gop_admins')) || [],
+        currentAdmin: null,
+        editIndex: -1, // -1 means creating new
+        formData: {},
+
+        init: function() {
+            this.updateLabels();
+            this.renderProfiles();
+        },
+
+        toggleLang: function() {
+            this.lang = this.lang === 'en' ? 'pt' : 'en';
+            this.updateLabels();
+            this.renderProfiles(); // Re-render "New Admin" card text
+        },
+
+        updateLabels: function() {
+            const s = STRINGS[this.lang];
+            document.getElementById('lbl-title').innerText = s.title;
+            document.getElementById('lbl-subtitle').innerText = s.subtitle;
+            document.getElementById('lbl-summary-title').innerText = s.summaryTitle;
+            document.getElementById('lbl-summary-sub').innerText = s.summarySub;
+            document.getElementById('btn-send-email').innerHTML = `<i class="ph ph-envelope-simple"></i> ${s.btnEmail}`;
+            document.getElementById('btn-send-wa').innerHTML = `<i class="ph ph-whatsapp-logo"></i> ${s.btnWa}`;
+            document.getElementById('btn-copy').innerHTML = `<i class="ph ph-copy"></i> ${s.btnCopy}`;
+            document.getElementById('btn-restart').innerText = s.btnRestart;
+        },
+
+        renderProfiles: function() {
+            const list = document.getElementById('profile-list');
+            list.innerHTML = '';
+            
+            this.admins.forEach((admin, idx) => {
+                const card = document.createElement('div');
+                card.className = 'profile-card';
+                
+                // Main Click -> Select Admin
+                card.onclick = (e) => {
+                    // Prevent firing if clicked on action buttons
+                    if(e.target.closest('.card-actions')) return;
+                    this.selectAdmin(idx);
+                };
+
+                card.innerHTML = `
+                    <div class="card-actions">
+                        <div class="action-icon" onclick="app.editAdmin(${idx})"><i class="ph ph-pencil-simple"></i></div>
+                        <div class="action-icon delete" onclick="app.deleteAdmin(${idx})"><i class="ph ph-trash"></i></div>
+                    </div>
+                    <div class="profile-icon">${admin.iconHTML}</div>
+                    <div class="profile-name">${admin.name}</div>
+                    <div class="profile-role">${admin.role}</div>
+                `;
+                list.appendChild(card);
+            });
+
+            const addBtn = document.createElement('div');
+            addBtn.className = 'profile-card add-card';
+            addBtn.onclick = () => this.startAdminFlow();
+            addBtn.innerHTML = `
+                <div class="profile-icon">${ICONS.plus}</div>
+                <div class="profile-name">${STRINGS[this.lang].newAdmin}</div>
+            `;
+            list.appendChild(addBtn);
+        },
+
+        // --- ADMIN MANAGEMENT ---
+        deleteAdmin: function(idx) {
+            if(confirm("Delete this profile?")) {
+                this.admins.splice(idx, 1);
+                localStorage.setItem('gop_admins', JSON.stringify(this.admins));
+                this.renderProfiles();
+            }
+        },
+
+        editAdmin: function(idx) {
+            this.editIndex = idx;
+            const data = this.admins[idx];
+            // Split phone for the complex input
+            const [code, ...rest] = data.phone.split(' ');
+            const num = rest.join(' '); // Rejoin in case of spaces
+
+            // Pre-fill object for engine
+            const prefill = {
+                icon: data.iconType,
+                name: data.name,
+                role: data.role,
+                email: data.email,
+                phone_code: code,
+                phone_num: num,
+                location: data.location
+            };
+            
+            engine.start(getAdminQuestions(this.lang), this.finishAdminSave.bind(this), prefill);
+        },
+
+        startAdminFlow: function() {
+            this.editIndex = -1; // New mode
+            engine.start(getAdminQuestions(this.lang), this.finishAdminSave.bind(this));
+        },
+
+        finishAdminSave: function(data) {
+            const newAdmin = {
+                name: data.name,
+                role: data.role,
+                email: data.email,
+                phone: `${data.phone_code} ${data.phone_num}`,
+                location: data.location,
+                iconType: data.icon,
+                iconHTML: data.iconHTML // passed from engine selection
+            };
+
+            if (this.editIndex >= 0) {
+                // Update Existing
+                this.admins[this.editIndex] = newAdmin;
+            } else {
+                // Create New
+                this.admins.push(newAdmin);
+                this.editIndex = this.admins.length - 1;
+            }
+
+            localStorage.setItem('gop_admins', JSON.stringify(this.admins));
+            this.renderProfiles();
+            this.selectAdmin(this.editIndex);
+        },
+
+        // --- GOP FLOW ---
+        selectAdmin: function(idx) {
+            this.currentAdmin = this.admins[idx];
+            this.startGopFlow();
+        },
+
+        startGopFlow: function() {
+            engine.start(getGopQuestions(this.lang), this.showSummary.bind(this));
+        },
+
+        showSummary: function(data) {
+            this.formData = data;
+            const s = STRINGS[this.lang];
+            const container = document.getElementById('summary-content');
+            container.innerHTML = '';
+            
+            const pCode = data.facPhone_code || '';
+            const pNum = data.facPhone_num || '';
+            const formattedFacPhone = pNum ? `${pCode} ${pNum}` : '';
+
+            const addRow = (l, v) => { if(v) container.innerHTML += `<div class="summary-row"><div class="summary-label">${l}</div><div class="summary-val">${v}</div></div>`; };
+
+            addRow(s.reqName, this.currentAdmin.name);
+            addRow(s.reqRole, this.currentAdmin.role);
+            addRow(s.reqPhone, this.currentAdmin.phone);
+            addRow(s.patName, data.patientName);
+            addRow(s.aetnaId, data.aetnaId);
+            addRow(s.patDob, this.formatDate(data.dob));
+            addRow(s.illness, data.illness);
+            addRow(s.servType, data.serviceType);
+            addRow(s.servDate, this.formatDate(data.serviceDate));
+            addRow(s.facName, data.facName);
+            addRow(s.facAddr, data.facAddress);
+            addRow(s.facPhone, formattedFacPhone);
+            addRow(s.phyName, data.phyName);
+            addRow(s.ccEmails, data.ccEmail);
+
+            this.generatedText = actions.generateFullText();
+            switchScreen('screen-summary');
+        },
+
+        reset: function() { switchScreen('screen-home'); },
+        formatDate: function(iso) { if(!iso) return ''; const [y, m, d] = iso.split('-'); return `${m}/${d}/${y}`; }
+    };
+
+    // --- TYPEFORM ENGINE ---
+    const engine = {
+        questions: [], index: 0, answers: {}, callback: null,
+
+        start: function(qs, cb, prefill = {}) {
+            this.questions = qs;
+            this.callback = cb;
+            this.index = 0;
+            this.answers = {...prefill}; // Load prefill data
+            this.render();
+            this.update();
+            switchScreen('screen-runner');
+        },
+
+        render: function() {
+            const c = document.getElementById('slide-container'); c.innerHTML = '';
+            this.questions.forEach((q, i) => {
+                const div = document.createElement('div'); div.className = 'slide'; div.id = `slide-${i}`;
+                
+                let val = this.answers[q.id] || q.defaultValue || '';
+
+                let html = '';
+                if(q.type === 'text' || q.type === 'email') {
+                    html = `<input type="${q.type}" id="in-${i}" value="${val}" placeholder="Type here..." autocomplete="off">`;
+                } else if(q.type === 'date') {
+                    html = `<input type="date" id="in-${i}" value="${val}">`;
+                } else if(q.type === 'phone_complex') {
+                    // Check if pre-filled exist (from edit) or use default
+                    let code = this.answers[q.id+'_code'] || '+258';
+                    let num = this.answers[q.id+'_num'] || '';
+                    html = `
+                        <div class="phone-row">
+                            <select id="in-${i}-code" class="phone-select" onchange="engine.fmtPhone(${i})">
+                                <option value="+258" ${code==='+258'?'selected':''}>🇲🇿 +258</option>
+                                <option value="+27" ${code==='+27'?'selected':''}>🇿🇦 +27</option>
+                                <option value="+244" ${code==='+244'?'selected':''}>🇦🇴 +244</option>
+                                <option value="+1" ${code==='+1'?'selected':''}>🇺🇸 +1</option>
+                            </select>
+                            <input type="tel" id="in-${i}-num" value="${num}" placeholder="84 123 4567" oninput="engine.fmtPhone(${i})">
+                        </div>`;
+                } else if(q.type === 'icon_select') {
+                    const cur = this.answers['icon'];
+                    const mkIcon = (k, h) => `<div class="icon-opt ${cur===k?'selected':''}" onclick="engine.selIcon(this, '${k}', '${h}')">${h}</div>`;
+                    html = `<div class="icon-grid">
+                        ${mkIcon('male', ICONS.male)} ${mkIcon('female', ICONS.female)}
+                        ${mkIcon('stethoscope', ICONS.stethoscope)} ${mkIcon('aid', ICONS.aid)}
+                        ${mkIcon('gear', ICONS.gear)}
+                    </div><input type="hidden" id="in-${i}" value="${cur||''}">`;
+                } else if(q.type === 'map_search') {
+                    html = `<input type="text" id="in-${i}" value="${val}" placeholder="Address or GPS">
+                        <a href="#" class="map-helper" onclick="actions.openMap(event, 'in-${i}')"><i class="ph ph-map-pin"></i> Google Maps</a>`;
+                }
+
+                div.innerHTML = `<h2>${q.label}</h2>${q.sub ? `<span class="sub-text">${q.sub}</span>` : ''}<div class="tf-input-group">${html}</div>`;
+                c.appendChild(div);
+            });
+            document.onkeydown = (e) => { if(e.key === 'Enter') this.next(); };
+        },
+
+        update: function() {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            const s = document.getElementById(`slide-${this.index}`);
+            if(s) {
+                s.classList.add('active');
+                setTimeout(() => { const i = s.querySelector('input:not([type=hidden])'); if(i) i.focus(); }, 100);
+            }
+            const p = ((this.index+1)/this.questions.length)*100;
+            document.getElementById('progress-bar').style.width = `${p}%`;
+            document.getElementById('step-counter').innerText = `${this.index+1} / ${this.questions.length}`;
+        },
+
+        next: function() {
+            const q = this.questions[this.index];
+            const i = this.index;
+            let val = null, valid = true, el = null;
+
+            if(q.type === 'phone_complex') {
+                const c = document.getElementById(`in-${i}-code`).value;
+                const n = document.getElementById(`in-${i}-num`).value.trim();
+                el = document.getElementById(`in-${i}-num`);
+                if(n.length < 5) valid = false;
+                else { 
+                    this.answers[q.id+'_code'] = c; 
+                    this.answers[q.id+'_num'] = n; 
+                    val='ok'; 
+                }
+            } else {
+                el = document.getElementById(`in-${i}`);
+                val = el.value.trim();
+                
+                // Email Validation Logic
+                if(q.type === 'email' && val) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if(!emailRegex.test(val)) valid = false;
+                }
+
+                if(!q.optional && !val) valid = false;
+                else this.answers[q.id] = val;
+            }
+
+            if(!valid && !q.optional) { 
+                if(el) { 
+                    el.classList.add('shake'); 
+                    setTimeout(()=>el.classList.remove('shake'), 400); 
+                } 
+                return; 
+            }
+
+            if(this.index < this.questions.length-1) { this.index++; this.update(); }
+            else this.callback(this.answers);
+        },
+        prev: function() { if(this.index>0){this.index--;this.update();} else app.reset(); },
+        selIcon: function(e, k, h) {
+            document.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('selected'));
+            e.classList.add('selected');
+            document.getElementById(`in-${this.index}`).value = k;
+            this.answers['iconHTML'] = h; // save visual
+            setTimeout(()=>this.next(), 250);
+        },
+        fmtPhone: function(i) {
+            const c = document.getElementById(`in-${i}-code`).value;
+            const inp = document.getElementById(`in-${i}-num`);
+            let v = inp.value.replace(/\D/g, '');
+            if(c === '+258') {
+                if(v.length>9) v=v.substring(0,9);
+                if(v.length>5) v=`${v.substring(0,2)} ${v.substring(2,5)} ${v.substring(5)}`;
+                else if(v.length>2) v=`${v.substring(0,2)} ${v.substring(2)}`;
+            }
+            inp.value = v;
+        }
+    };
+
+    // --- HELPER ACTIONS ---
+    const actions = {
+        openMap: (e, id) => { e.preventDefault(); const v = document.getElementById(id).value; if(v) window.open(`http://googleusercontent.com/maps.google.com/5{encodeURIComponent(v)}`); },
+        generateFullText: () => {
+            const d = app.formData, a = app.currentAdmin, s = STRINGS[app.lang];
+            const L = (l, v) => `${l}: ${v || 'N/A'}`;
+            
+            // Format facility phone
+            const facPhone = d.facPhone_num ? `${d.facPhone_code} ${d.facPhone_num}` : 'N/A';
+
+            return `${s.greeting}\n\n${s.intro}\n\n` +
+                   `${L(s.reqName, a.name)}\n${L(s.reqRole, a.role)}\n${L(s.reqPhone, a.phone)}\n${L('Location', a.location)}\n` + 
+                   `----------------\n` +
+                   `${L(s.patName, d.patientName)}\n${L('Aetna ID', d.aetnaId)}\n${L(s.patDob, app.formatDate(d.dob))}\n` +
+                   `----------------\n` +
+                   `${L(s.illness, d.illness)}\n${L(s.servType, d.serviceType)}\n${L(s.servDate, app.formatDate(d.serviceDate))}\n` +
+                   `----------------\n` +
+                   `${L(s.facName, d.facName)}\n${L(s.facAddr, d.facAddress)}\n${L(s.facPhone, facPhone)}\n` +
+                   `${L(s.phyName, d.phyName)}\n${L('Specialty', d.phySpec)}\n` +
+                   `----------------\n` +
+                   `${L(s.ccEmails, d.ccEmail)}\n\n${s.regards}\n${a.name}`;
+        },
+        sendEmail: () => window.location.href = `mailto:agb@mso.co.za?subject=${encodeURIComponent('GOP Request: '+app.formData.patientName)}&body=${encodeURIComponent(app.generatedText)}`,
+        sendWhatsapp: () => window.open(`https://wa.me/27662903409?text=${encodeURIComponent(app.generatedText)}`),
+        copyText: () => navigator.clipboard.writeText(app.generatedText).then(() => {
+            const b = document.getElementById('btn-copy'); const old = b.innerHTML;
+            b.innerHTML = `<i class="ph ph-check"></i> ${STRINGS[app.lang].copySuccess}`;
+            setTimeout(()=>b.innerHTML=old, 2000);
+        })
+    };
+
+    function switchScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+    // --- DATA GENERATORS ---
+    function getAdminQuestions(l) {
+        const en = l==='en';
+        return [
+            { id: 'icon', type: 'icon_select', label: en?'Choose Icon':'Escolha um ícone', sub: en?'Pick an avatar for your profile':'Escolha um avatar para seu perfil' },
+            { id: 'name', type: 'text', label: en?'Your Name':'Seu Nome', sub: en?'Mission Contact Name':'Nome do Contato da Missão' },
+            { id: 'role', type: 'text', label: en?'Your Role':'Seu Cargo', sub: 'Ex: Mission Nurse' },
+            { id: 'email', type: 'email', label: en?'Your Email':'Seu E-mail', sub: 'churchofjesuschrist.org' },
+            { id: 'phone', type: 'phone_complex', label: en?'Your Phone':'Seu Telefone', sub: en?'Select Country Code':'Selecione o Código do País' },
+            { id: 'location', type: 'text', label: en?'Your Location':'Sua Localização', sub: 'City, Country', defaultValue: 'Beira, Mozambique' }
+        ];
+    }
+    function getGopQuestions(l) {
+        const en = l==='en';
+        return [
+            { id: 'patientName', type: 'text', label: en?'Patient Name':'Nome do Paciente', sub: en?'Missionary Full Name':'Nome Completo do Missionário' },
+            { id: 'aetnaId', type: 'text', label: 'Aetna W ID #', sub: 'ID #' },
+            { id: 'dob', type: 'date', label: en?'Date of Birth':'Data de Nascimento', sub: '' },
+            { id: 'illness', type: 'text', label: en?'Nature of Illness':'Natureza da Doença', sub: en?'Brief explanation':'Breve explicação' },
+            { id: 'serviceType', type: 'text', label: en?'Service Needed':'Serviço Necessário', sub: 'Ex: MD consult, ER visit' },
+            { id: 'serviceDate', type: 'date', label: en?'Date of Service':'Data do Serviço', sub: '' },
+            { id: 'facName', type: 'text', label: en?'Facility Name':'Nome da Instalação', sub: 'Hospital / Clinic' },
+            { id: 'facAddress', type: 'map_search', label: en?'Facility Address':'Endereço', sub: 'GPS / Address' },
+            { id: 'facPhone', type: 'phone_complex', label: en?'Facility Phone':'Telefone do Hospital', sub: en?'Reception/ER':'Recepção/Emergência' },
+            { id: 'phyName', type: 'text', label: en?'Physician Name':'Nome do Médico', sub: en?'Optional':'Opcional', optional: true },
+            { id: 'phySpec', type: 'text', label: en?'Specialty':'Especialidade', sub: en?'Optional':'Opcional', optional: true },
+            { id: 'ccEmail', type: 'text', label: 'CC Emails', sub: en?'Separate with commas':'Separe por vírgulas', optional: true }
+        ];
+    }
+
+    // Start
+    app.init();
+
+</script>
+</body>
+</html>
