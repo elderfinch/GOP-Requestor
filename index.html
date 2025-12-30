@@ -502,7 +502,7 @@
                 let html = '';
                 // Added oninput to save immediately
                 if(q.type === 'text' || q.type === 'email') {
-                    html = `<input type="${q.type}" id="in-${i}" value="${val}" placeholder="Type here..." autocomplete="off" oninput="engine.inputChange('${q.id}', this.value)">`;
+                    html = `<input type="${q.type}" id="in-${i}" value="${val}" placeholder="${en ? "Type here..." : "Digite aqui..."}" autocomplete="off" oninput="engine.inputChange('${q.id}', this.value)">`;
                 } else if(q.type === 'date') {
                     html = `<input type="date" id="in-${i}" value="${val}" oninput="engine.inputChange('${q.id}', this.value)">`;
                 } else if(q.type === 'phone_complex') {
@@ -626,7 +626,7 @@
 
     // --- HELPER ACTIONS ---
     const actions = {
-        openMap: (e, id) => { e.preventDefault(); const v = document.getElementById(id).value; if(v) window.open(`http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(v)}`); },
+        openMap: (e, id) => { e.preventDefault(); window.open(`https://maps.google.com/?q=${encodeURIComponent(v)}`); },
         generateFullText: () => {
             const d = app.formData, a = app.currentAdmin, s = STRINGS[app.lang];
             const L = (l, v) => `${l}: ${v || 'N/A'}`;
@@ -686,9 +686,9 @@
             { id: 'facName', type: 'text', label: en?'Facility Name':'Nome da Instalação/Provedor', sub: en? "please be as specific as possible with facility provider's name" : 'seja o mais específico possível com o nome da instalação/provedor' },
             { id: 'facAddress', type: 'map_search', label: en?'Facility/Provider address/GPS location':'Endereço da instalação/provedor/localização GPS:', sub: '' },
             { id: 'facPhone', type: 'phone_complex', label: en?'Facility Phone':'Telefone do Hospital', sub: en?'Reception/ER':'Recepção/Emergência' },
-            { id: 'phyName', type: 'text', label: en?'Physician Name':'Nome do Médico', sub: en?'If known':'se conhecido', optional: true },
-            { id: 'phySpec', type: 'text', label: en?'Specialty':'Especialidade', sub: en?'If known':'se conhecida', optional: true },
-            { id: 'ccEmail', type: 'text', label: en?"Email Address(es) of any other contacts who should receive a copy of the GOP when issued:" :'Endereço(s) de e-mail de quaisquer outros contatos que deverão receber uma cópia do GOP quando emitido: ', sub: en?'Separate with commas':'Separe por vírgulas', optional: true }
+            { id: 'phyName', type: 'text', label: en?'Physician Name':'Nome do Médico', sub: en?'Optional - If known':'Opcional - se conhecido', optional: true },
+            { id: 'phySpec', type: 'text', label: en?'Specialty':'Especialidade', sub: en?'Optional If known':'Opcional - se conhecida', optional: true },
+            { id: 'ccEmail', type: 'text', label: en?"Email Address(es) of any other contacts who should receive a copy of the GOP when issued:" :'Endereço(s) de e-mail de quaisquer outros contatos que deverão receber uma cópia do GOP quando emitido: ', sub: en?'Separate with commas. Optional.':'Separe por vírgulas. Opcional', optional: true }
         ];
     }
 
