@@ -668,8 +668,8 @@
         return [
             { id: 'icon', type: 'icon_select', label: en?'Choose Icon':'Escolha um ícone', sub: en?'Pick an avatar for your profile':'Escolha um avatar para seu perfil' },
             { id: 'name', type: 'text', label: en?'Your Name':'Seu Nome', sub: en?'Mission Contact Name':'Nome do Contato da Missão' },
-            { id: 'role', type: 'text', label: en?'Your Role':'Seu Cargo', sub: 'Ex: Mission Nurse' },
-            { id: 'email', type: 'email', label: en?'Your Email':'Seu E-mail', sub: 'churchofjesuschrist.org' },
+            { id: 'role', type: 'text', label: en?'Your Role':'Seu Cargo', sub: en?'Ex: Mission Nurse':'Ex. Medico da Missão' },
+            { id: 'email', type: 'email', label: en?'Your Email':'Seu E-mail', sub: en?'churchofjesuschrist.org or missionary.org':'churchofjesuschrist.org ou missionary.org' },
             { id: 'phone', type: 'phone_complex', label: en?'Your Phone':'Seu Telefone', sub: en?'Select Country Code':'Selecione o Código do País' },
             { id: 'location', type: 'text', label: en?'Your Location':'Sua Localização', sub: 'City, Country', defaultValue: 'Beira, Mozambique' }
         ];
@@ -678,17 +678,17 @@
         const en = l==='en';
         return [
             { id: 'patientName', type: 'text', label: en?'Patient Name':'Nome do Paciente', sub: en?'Missionary Full Name':'Nome Completo do Missionário' },
-            { id: 'aetnaId', type: 'text', label: 'Aetna W ID #', sub: 'ID #' },
+            { id: 'aetnaId', type: 'text', label: 'Aetna W ID #', sub: '' },
             { id: 'dob', type: 'date', label: en?'Date of Birth':'Data de Nascimento', sub: '' },
-            { id: 'illness', type: 'text', label: en?'Nature of Illness':'Natureza da Doença', sub: en?'Brief explanation':'Breve explicação' },
-            { id: 'serviceType', type: 'text', label: en?'Service Needed':'Serviço Necessário', sub: 'Ex: MD consult, ER visit' },
-            { id: 'serviceDate', type: 'date', label: en?'Date of Service':'Data do Serviço', sub: '' },
-            { id: 'facName', type: 'text', label: en?'Facility Name':'Nome da Instalação', sub: 'Hospital / Clinic' },
-            { id: 'facAddress', type: 'map_search', label: en?'Facility Address':'Endereço', sub: 'GPS / Address' },
+            { id: 'illness', type: 'text', label: en?'What is the nature of the illness/injury/medical complaint':'Qual é a natureza da doença/lesão/queixa médica', sub: en?'(A brief explanation of symptoms. Ex. Knee pain, sore throat, abdominal pain, etc.):': 'Uma breve explicação dos sintomas. Ex. Dor no joelho, dor de garganta, dor abdominal, etc.' },
+            { id: 'serviceType', type: 'text', label: en?'Service Needed':'Serviço Necessário', sub: en?'ex: MD consult, ER visit, Hosptial Admission, etc.' : 'ex. consulta médica, visita ao pronto-socorro, internação hospitalar, etc.' },
+            { id: 'serviceDate', type: 'date', label: en?'Date of Service':'Data do Serviço', sub: en?'planned or emergency' : 'planejada ou emergencial' },
+            { id: 'facName', type: 'text', label: en?'Facility Name':'Nome da Instalação/Provedor', sub: en? "please be as specific as possible with facility provider's name" : 'seja o mais específico possível com o nome da instalação/provedor' },
+            { id: 'facAddress', type: 'map_search', label: en?'Facility/Provider address/GPS location':'Endereço da instalação/provedor/localização GPS:', sub: '' },
             { id: 'facPhone', type: 'phone_complex', label: en?'Facility Phone':'Telefone do Hospital', sub: en?'Reception/ER':'Recepção/Emergência' },
-            { id: 'phyName', type: 'text', label: en?'Physician Name':'Nome do Médico', sub: en?'Optional':'Opcional', optional: true },
-            { id: 'phySpec', type: 'text', label: en?'Specialty':'Especialidade', sub: en?'Optional':'Opcional', optional: true },
-            { id: 'ccEmail', type: 'text', label: 'CC Emails', sub: en?'Separate with commas':'Separe por vírgulas', optional: true }
+            { id: 'phyName', type: 'text', label: en?'Physician Name':'Nome do Médico', sub: en?'If known':'se conhecido', optional: true },
+            { id: 'phySpec', type: 'text', label: en?'Specialty':'Especialidade', sub: en?'If known':'se conhecida', optional: true },
+            { id: 'ccEmail', type: 'text', label: en?"Email Address(es) of any other contacts who should receive a copy of the GOP when issued:" :'Endereço(s) de e-mail de quaisquer outros contatos que deverão receber uma cópia do GOP quando emitido: ', sub: en?'Separate with commas':'Separe por vírgulas', optional: true }
         ];
     }
 
