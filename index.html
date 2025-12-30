@@ -6,7 +6,6 @@
     <title>GOP Request App</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
@@ -180,7 +179,7 @@
                     <h1 id="lbl-title">GOP Request</h1>
                     <p class="sub-text" id="lbl-subtitle">Select an Administrator to begin.</p>
                 </div>
-                <button class="lang-toggle" onclick="app.toggleLang()">🇺🇸 / 🇲🇿</button>
+                <button class="lang-toggle" onclick="app.toggleLang()">ENG / PT</button>
             </div>
             
             <div id="profile-list" class="profile-grid"></div>
@@ -208,7 +207,7 @@
                 <button onclick="actions.sendEmail()" class="btn btn-action" id="btn-send-email"><i class="ph ph-envelope-simple"></i> Email (Preferred)</button>
                 <button onclick="actions.sendWhatsapp()" class="btn btn-action btn-whatsapp" id="btn-send-wa"><i class="ph ph-whatsapp-logo"></i> WhatsApp</button>
                 <button onclick="actions.copyText()" class="btn btn-action btn-copy" id="btn-copy"><i class="ph ph-copy"></i> Copy Text</button>
-                <button onclick="app.reset()" class="btn btn-ghost" style="margin-top:10px;" id="btn-restart">Start Over</button>
+                <button onclick="app.reset()" class="btn btn-ghost" style="margin-top:10px;" id="btn-restart">Done</button>
             </div>
         </div>
 
@@ -218,68 +217,30 @@
     // --- TRANSLATIONS ---
     const STRINGS = {
         en: {
-            title: "GOP Request",
-            subtitle: "Select an Administrator to begin.",
-            newAdmin: "New Admin",
-            summaryTitle: "Review & Send",
-            summarySub: "Please verify the information below.",
-            btnEmail: "Email (Preferred)",
-            btnWa: "WhatsApp",
-            btnCopy: "Copy Text",
-            btnRestart: "Start Over",
-            greeting: "Greetings,",
-            intro: "Please find the necessary information below for our GOP request:",
-            regards: "Regards,",
-            reqName: "Requestor Name",
-            reqRole: "Requestor Role",
-            reqPhone: "Requestor Phone",
-            patName: "Patient Name",
-            patDob: "Date of Birth",
-            illness: "Illness/Injury",
-            servType: "Service Type",
-            servDate: "Service Date",
-            facName: "Facility Name",
-            facAddr: "Address",
-            facPhone: "Phone",
-            phyName: "Physician",
-            ccEmails: "CC Emails",
-            copySuccess: "Copied!"
+            title: "GOP Request", subtitle: "Select an Administrator to begin.", newAdmin: "New Admin",
+            summaryTitle: "Review & Send", summarySub: "Please verify the information below.",
+            btnEmail: "Email (Preferred)", btnWa: "WhatsApp", btnCopy: "Copy Text", btnRestart: "Done",
+            greeting: "Greetings,", intro: "Please find the necessary information below for our GOP request:", regards: "Regards,",
+            reqName: "Requestor Name", reqRole: "Requestor Role", reqPhone: "Requestor Phone",
+            patName: "Patient Name", aetnaId: "Aetna ID", patDob: "Date of Birth", illness: "Illness/Injury",
+            servType: "Service Type", servDate: "Service Date", facName: "Facility Name", facAddr: "Address",
+            facPhone: "Phone", phyName: "Physician", ccEmails: "CC Emails", copySuccess: "Copied!"
         },
         pt: {
-            title: "Solicitação GOP",
-            subtitle: "Selecione um administrador para começar.",
-            newAdmin: "Novo Admin",
-            summaryTitle: "Revisar e Enviar",
-            summarySub: "Verifique as informações abaixo.",
-            btnEmail: "E-mail (Preferido)",
-            btnWa: "WhatsApp",
-            btnCopy: "Copiar Texto",
-            btnRestart: "Reiniciar",
-            greeting: "Olá,",
-            intro: "Seguem as informações necessárias para nossa solicitação de GOP:",
-            regards: "Atenciosamente,",
-            reqName: "Solicitante",
-            reqRole: "Cargo",
-            reqPhone: "Telefone",
-            patName: "Nome do Paciente",
-            patDob: "Data de Nascimento",
-            illness: "Doença/Lesão",
-            servType: "Tipo de Serviço",
-            servDate: "Data do Serviço",
-            facName: "Instalação",
-            facAddr: "Endereço",
-            facPhone: "Telefone",
-            phyName: "Médico",
-            ccEmails: "E-mails (CC)",
-            copySuccess: "Copiado!"
+            title: "Solicitação GOP", subtitle: "Selecione um administrador para começar.", newAdmin: "Novo Admin",
+            summaryTitle: "Revisar e Enviar", summarySub: "Verifique as informações abaixo.",
+            btnEmail: "E-mail (Preferido)", btnWa: "WhatsApp", btnCopy: "Copiar Texto", btnRestart: "Terminado",
+            greeting: "Olá,", intro: "Seguem as informações necessárias para nossa solicitação de GOP:", regards: "Atenciosamente,",
+            reqName: "Solicitante", reqRole: "Cargo", reqPhone: "Telefone",
+            patName: "Nome do Paciente", aetnaId: "ID Aetna", patDob: "Data de Nascimento", illness: "Doença/Lesão",
+            servType: "Tipo de Serviço", servDate: "Data do Serviço", facName: "Instalação", facAddr: "Endereço",
+            facPhone: "Telefone", phyName: "Médico", ccEmails: "E-mails (CC)", copySuccess: "Copiado!"
         }
     };
 
-    // --- ICONS ---
     const ICONS = {
         male: '👨‍⚕️', female: '👩‍⚕️', stethoscope: '<i class="ph ph-stethoscope"></i>',
-        aid: '<i class="ph ph-first-aid-kit"></i>', gear: '<i class="ph ph-user-gear"></i>',
-        plus: '<i class="ph ph-plus"></i>'
+        aid: '<i class="ph ph-first-aid-kit"></i>', gear: '<i class="ph ph-user-gear"></i>', plus: '<i class="ph ph-plus"></i>'
     };
 
     // --- APP ENGINE ---
@@ -287,18 +248,79 @@
         lang: 'en',
         admins: JSON.parse(localStorage.getItem('gop_admins')) || [],
         currentAdmin: null,
-        editIndex: -1, // -1 means creating new
+        editIndex: -1, 
+        currentFlow: null, // 'gop' or 'admin'
         formData: {},
+        generatedText: '',
 
         init: function() {
             this.updateLabels();
             this.renderProfiles();
+            // Try to restore session on load
+            this.restoreSession();
+        },
+
+        // --- STATE MANAGEMENT (NEW) ---
+        saveSession: function() {
+            const state = {
+                screen: document.querySelector('.screen.active')?.id,
+                lang: this.lang,
+                adminIndex: this.currentAdmin ? this.admins.indexOf(this.currentAdmin) : -1,
+                editIndex: this.editIndex,
+                flow: this.currentFlow,
+                answers: engine.answers,
+                step: engine.index,
+                formData: this.formData // For summary screen
+            };
+            localStorage.setItem('gop_session', JSON.stringify(state));
+        },
+
+        restoreSession: function() {
+            const saved = JSON.parse(localStorage.getItem('gop_session'));
+            if (!saved) return;
+
+            // Restore Lang
+            if(saved.lang) this.lang = saved.lang;
+            this.updateLabels();
+
+            // Restore Admin Context
+            if(saved.adminIndex > -1) this.currentAdmin = this.admins[saved.adminIndex];
+            this.editIndex = saved.editIndex;
+            this.currentFlow = saved.flow;
+            this.formData = saved.formData || {};
+
+            // Route to correct screen
+            if (saved.screen === 'screen-runner' && saved.flow) {
+                // Restart engine at specific step
+                const questions = saved.flow === 'admin' ? getAdminQuestions(this.lang) : getGopQuestions(this.lang);
+                
+                // We define a callback based on flow
+                const cb = saved.flow === 'admin' ? this.finishAdminSave.bind(this) : this.showSummary.bind(this);
+                
+                // Initialize engine but override index
+                engine.questions = questions;
+                engine.callback = cb;
+                engine.answers = saved.answers || {};
+                engine.index = saved.step || 0;
+                engine.render(); // Redraws inputs
+                engine.update(); // Updates UI/Progress
+                switchScreen('screen-runner');
+
+            } else if (saved.screen === 'screen-summary') {
+                this.showSummary(this.formData);
+            }
+        },
+
+        clearSession: function() {
+            localStorage.removeItem('gop_session');
+            this.currentFlow = null;
         },
 
         toggleLang: function() {
             this.lang = this.lang === 'en' ? 'pt' : 'en';
             this.updateLabels();
-            this.renderProfiles(); // Re-render "New Admin" card text
+            this.renderProfiles();
+            this.saveSession();
         },
 
         updateLabels: function() {
@@ -320,14 +342,10 @@
             this.admins.forEach((admin, idx) => {
                 const card = document.createElement('div');
                 card.className = 'profile-card';
-                
-                // Main Click -> Select Admin
                 card.onclick = (e) => {
-                    // Prevent firing if clicked on action buttons
                     if(e.target.closest('.card-actions')) return;
                     this.selectAdmin(idx);
                 };
-
                 card.innerHTML = `
                     <div class="card-actions">
                         <div class="action-icon" onclick="app.editAdmin(${idx})"><i class="ph ph-pencil-simple"></i></div>
@@ -350,7 +368,6 @@
             list.appendChild(addBtn);
         },
 
-        // --- ADMIN MANAGEMENT ---
         deleteAdmin: function(idx) {
             if(confirm("Delete this profile?")) {
                 this.admins.splice(idx, 1);
@@ -361,12 +378,11 @@
 
         editAdmin: function(idx) {
             this.editIndex = idx;
+            this.currentFlow = 'admin';
             const data = this.admins[idx];
-            // Split phone for the complex input
             const [code, ...rest] = data.phone.split(' ');
-            const num = rest.join(' '); // Rejoin in case of spaces
+            const num = rest.join(' ');
 
-            // Pre-fill object for engine
             const prefill = {
                 icon: data.iconType,
                 name: data.name,
@@ -381,7 +397,8 @@
         },
 
         startAdminFlow: function() {
-            this.editIndex = -1; // New mode
+            this.editIndex = -1;
+            this.currentFlow = 'admin';
             engine.start(getAdminQuestions(this.lang), this.finishAdminSave.bind(this));
         },
 
@@ -393,35 +410,37 @@
                 phone: `${data.phone_code} ${data.phone_num}`,
                 location: data.location,
                 iconType: data.icon,
-                iconHTML: data.iconHTML // passed from engine selection
+                iconHTML: data.iconHTML 
             };
 
             if (this.editIndex >= 0) {
-                // Update Existing
                 this.admins[this.editIndex] = newAdmin;
             } else {
-                // Create New
                 this.admins.push(newAdmin);
                 this.editIndex = this.admins.length - 1;
             }
 
             localStorage.setItem('gop_admins', JSON.stringify(this.admins));
+            this.clearSession(); // Flow complete
             this.renderProfiles();
             this.selectAdmin(this.editIndex);
         },
 
-        // --- GOP FLOW ---
         selectAdmin: function(idx) {
             this.currentAdmin = this.admins[idx];
             this.startGopFlow();
         },
 
         startGopFlow: function() {
+            this.currentFlow = 'gop';
             engine.start(getGopQuestions(this.lang), this.showSummary.bind(this));
         },
 
         showSummary: function(data) {
             this.formData = data;
+            // Ensure we save session here so if they reload on summary, they stay here
+            this.saveSession();
+
             const s = STRINGS[this.lang];
             const container = document.getElementById('summary-content');
             container.innerHTML = '';
@@ -451,7 +470,10 @@
             switchScreen('screen-summary');
         },
 
-        reset: function() { switchScreen('screen-home'); },
+        reset: function() { 
+            this.clearSession();
+            switchScreen('screen-home'); 
+        },
         formatDate: function(iso) { if(!iso) return ''; const [y, m, d] = iso.split('-'); return `${m}/${d}/${y}`; }
     };
 
@@ -463,10 +485,11 @@
             this.questions = qs;
             this.callback = cb;
             this.index = 0;
-            this.answers = {...prefill}; // Load prefill data
+            this.answers = {...prefill};
             this.render();
             this.update();
             switchScreen('screen-runner');
+            app.saveSession(); // Save start
         },
 
         render: function() {
@@ -477,34 +500,32 @@
                 let val = this.answers[q.id] || q.defaultValue || '';
 
                 let html = '';
+                // Added oninput to save immediately
                 if(q.type === 'text' || q.type === 'email') {
-                    html = `<input type="${q.type}" id="in-${i}" value="${val}" placeholder="Type here..." autocomplete="off">`;
+                    html = `<input type="${q.type}" id="in-${i}" value="${val}" placeholder="Type here..." autocomplete="off" oninput="engine.inputChange('${q.id}', this.value)">`;
                 } else if(q.type === 'date') {
-                    html = `<input type="date" id="in-${i}" value="${val}">`;
+                    html = `<input type="date" id="in-${i}" value="${val}" oninput="engine.inputChange('${q.id}', this.value)">`;
                 } else if(q.type === 'phone_complex') {
-                    // Check if pre-filled exist (from edit) or use default
                     let code = this.answers[q.id+'_code'] || '+258';
                     let num = this.answers[q.id+'_num'] || '';
                     html = `
                         <div class="phone-row">
-                            <select id="in-${i}-code" class="phone-select" onchange="engine.fmtPhone(${i})">
+                            <select id="in-${i}-code" class="phone-select" onchange="engine.fmtPhone(${i}, '${q.id}')">
                                 <option value="+258" ${code==='+258'?'selected':''}>🇲🇿 +258</option>
                                 <option value="+27" ${code==='+27'?'selected':''}>🇿🇦 +27</option>
                                 <option value="+244" ${code==='+244'?'selected':''}>🇦🇴 +244</option>
                                 <option value="+1" ${code==='+1'?'selected':''}>🇺🇸 +1</option>
                             </select>
-                            <input type="tel" id="in-${i}-num" value="${num}" placeholder="84 123 4567" oninput="engine.fmtPhone(${i})">
+                            <input type="tel" id="in-${i}-num" value="${num}" placeholder="84 123 4567" oninput="engine.fmtPhone(${i}, '${q.id}')">
                         </div>`;
                 } else if(q.type === 'icon_select') {
                     const cur = this.answers['icon'];
                     const mkIcon = (k, h) => `<div class="icon-opt ${cur===k?'selected':''}" onclick="engine.selIcon(this, '${k}', '${h}')">${h}</div>`;
                     html = `<div class="icon-grid">
                         ${mkIcon('male', ICONS.male)} ${mkIcon('female', ICONS.female)}
-                        ${mkIcon('stethoscope', ICONS.stethoscope)} ${mkIcon('aid', ICONS.aid)}
-                        ${mkIcon('gear', ICONS.gear)}
                     </div><input type="hidden" id="in-${i}" value="${cur||''}">`;
                 } else if(q.type === 'map_search') {
-                    html = `<input type="text" id="in-${i}" value="${val}" placeholder="Address or GPS">
+                    html = `<input type="text" id="in-${i}" value="${val}" placeholder="Address or GPS" oninput="engine.inputChange('${q.id}', this.value)">
                         <a href="#" class="map-helper" onclick="actions.openMap(event, 'in-${i}')"><i class="ph ph-map-pin"></i> Google Maps</a>`;
                 }
 
@@ -512,6 +533,12 @@
                 c.appendChild(div);
             });
             document.onkeydown = (e) => { if(e.key === 'Enter') this.next(); };
+        },
+
+        // New helper to save as you type
+        inputChange: function(key, val) {
+            this.answers[key] = val;
+            app.saveSession();
         },
 
         update: function() {
@@ -524,6 +551,7 @@
             const p = ((this.index+1)/this.questions.length)*100;
             document.getElementById('progress-bar').style.width = `${p}%`;
             document.getElementById('step-counter').innerText = `${this.index+1} / ${this.questions.length}`;
+            app.saveSession(); // Save on step change
         },
 
         next: function() {
@@ -544,13 +572,10 @@
             } else {
                 el = document.getElementById(`in-${i}`);
                 val = el.value.trim();
-                
-                // Email Validation Logic
                 if(q.type === 'email' && val) {
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if(!emailRegex.test(val)) valid = false;
                 }
-
                 if(!q.optional && !val) valid = false;
                 else this.answers[q.id] = val;
             }
@@ -563,18 +588,26 @@
                 return; 
             }
 
-            if(this.index < this.questions.length-1) { this.index++; this.update(); }
-            else this.callback(this.answers);
+            if(this.index < this.questions.length-1) { 
+                this.index++; 
+                this.update(); 
+            } else { 
+                this.callback(this.answers);
+            }
         },
         prev: function() { if(this.index>0){this.index--;this.update();} else app.reset(); },
+        
         selIcon: function(e, k, h) {
             document.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('selected'));
             e.classList.add('selected');
             document.getElementById(`in-${this.index}`).value = k;
-            this.answers['iconHTML'] = h; // save visual
+            this.answers['icon'] = k; // Update immediate
+            this.answers['iconHTML'] = h;
+            app.saveSession();
             setTimeout(()=>this.next(), 250);
         },
-        fmtPhone: function(i) {
+        
+        fmtPhone: function(i, idKey) {
             const c = document.getElementById(`in-${i}-code`).value;
             const inp = document.getElementById(`in-${i}-num`);
             let v = inp.value.replace(/\D/g, '');
@@ -584,23 +617,25 @@
                 else if(v.length>2) v=`${v.substring(0,2)} ${v.substring(2)}`;
             }
             inp.value = v;
+            // Realtime save for phone
+            this.answers[idKey+'_code'] = c;
+            this.answers[idKey+'_num'] = v;
+            app.saveSession();
         }
     };
 
     // --- HELPER ACTIONS ---
     const actions = {
-        openMap: (e, id) => { e.preventDefault(); const v = document.getElementById(id).value; if(v) window.open(`http://googleusercontent.com/maps.google.com/5{encodeURIComponent(v)}`); },
+        openMap: (e, id) => { e.preventDefault(); const v = document.getElementById(id).value; if(v) window.open(`http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(v)}`); },
         generateFullText: () => {
             const d = app.formData, a = app.currentAdmin, s = STRINGS[app.lang];
             const L = (l, v) => `${l}: ${v || 'N/A'}`;
-            
-            // Format facility phone
             const facPhone = d.facPhone_num ? `${d.facPhone_code} ${d.facPhone_num}` : 'N/A';
 
             return `${s.greeting}\n\n${s.intro}\n\n` +
                    `${L(s.reqName, a.name)}\n${L(s.reqRole, a.role)}\n${L(s.reqPhone, a.phone)}\n${L('Location', a.location)}\n` + 
                    `----------------\n` +
-                   `${L(s.patName, d.patientName)}\n${L('Aetna ID', d.aetnaId)}\n${L(s.patDob, app.formatDate(d.dob))}\n` +
+                   `${L(s.patName, d.patientName)}\n${L(s.aetnaId, d.aetnaId)}\n${L(s.patDob, app.formatDate(d.dob))}\n` +
                    `----------------\n` +
                    `${L(s.illness, d.illness)}\n${L(s.servType, d.serviceType)}\n${L(s.servDate, app.formatDate(d.serviceDate))}\n` +
                    `----------------\n` +
@@ -609,16 +644,23 @@
                    `----------------\n` +
                    `${L(s.ccEmails, d.ccEmail)}\n\n${s.regards}\n${a.name}`;
         },
-        sendEmail: () => window.location.href = `mailto:agb@mso.co.za?subject=${encodeURIComponent('GOP Request: '+app.formData.patientName)}&body=${encodeURIComponent(app.generatedText)}`,
-        sendWhatsapp: () => window.open(`https://wa.me/27662903409?text=${encodeURIComponent(app.generatedText)}`),
+        sendEmail: () => {
+            app.clearSession(); // Clear on successful send intent
+            window.location.href = `mailto:agb@mso.co.za?subject=${encodeURIComponent('GOP Request: '+app.formData.patientName)}&body=${encodeURIComponent(app.generatedText)}`;
+        },
+        sendWhatsapp: () => {
+            app.clearSession(); // Clear on successful send intent
+            window.open(`https://wa.me/27662903409?text=${encodeURIComponent(app.generatedText)}`);
+        },
         copyText: () => navigator.clipboard.writeText(app.generatedText).then(() => {
             const b = document.getElementById('btn-copy'); const old = b.innerHTML;
             b.innerHTML = `<i class="ph ph-check"></i> ${STRINGS[app.lang].copySuccess}`;
             setTimeout(()=>b.innerHTML=old, 2000);
+            app.clearSession(); // Clear on copy success
         })
     };
 
-    function switchScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function switchScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); app.saveSession(); }
 
     // --- DATA GENERATORS ---
     function getAdminQuestions(l) {
