@@ -224,7 +224,8 @@
             reqName: "Requestor Name", reqRole: "Requestor Role", reqPhone: "Requestor Phone",
             patName: "Patient Name", aetnaId: "Aetna ID", patDob: "Date of Birth", illness: "Illness/Injury",
             servType: "Service Type", servDate: "Service Date", facName: "Facility Name", facAddr: "Address",
-            facPhone: "Phone", phyName: "Physician", ccEmails: "CC Emails", copySuccess: "Copied!"
+            facPhone: "Phone", phyName: "Physician", ccEmails: "CC Emails", copySuccess: "Copied!",
+            typeHere: "Type here..."
         },
         pt: {
             title: "Solicitação GOP", subtitle: "Selecione um administrador para começar.", newAdmin: "Novo Admin",
@@ -234,7 +235,8 @@
             reqName: "Solicitante", reqRole: "Cargo", reqPhone: "Telefone",
             patName: "Nome do Paciente", aetnaId: "ID Aetna", patDob: "Data de Nascimento", illness: "Doença/Lesão",
             servType: "Tipo de Serviço", servDate: "Data do Serviço", facName: "Instalação", facAddr: "Endereço",
-            facPhone: "Telefone", phyName: "Médico", ccEmails: "E-mails (CC)", copySuccess: "Copiado!"
+            facPhone: "Telefone", phyName: "Médico", ccEmails: "E-mails (CC)", copySuccess: "Copiado!",
+            typeHere: "Digite aqui..."
         }
     };
 
@@ -369,7 +371,7 @@
         },
 
         deleteAdmin: function(idx) {
-            if(confirm("Delete this profile?")) {
+            if(confirm(`${this.lang === "en" ? "Delete this profile?" : "Excluir este perfil?"}`)) {
                 this.admins.splice(idx, 1);
                 localStorage.setItem('gop_admins', JSON.stringify(this.admins));
                 this.renderProfiles();
@@ -493,6 +495,7 @@
         },
 
         render: function() {
+            const phText = STRINGS[app.lang].typeHere;
             const c = document.getElementById('slide-container'); c.innerHTML = '';
             this.questions.forEach((q, i) => {
                 const div = document.createElement('div'); div.className = 'slide'; div.id = `slide-${i}`;
@@ -502,7 +505,7 @@
                 let html = '';
                 // Added oninput to save immediately
                 if(q.type === 'text' || q.type === 'email') {
-                    html = `<input type="${q.type}" id="in-${i}" value="${val}" placeholder="${en ? "Type here..." : "Digite aqui..."}" autocomplete="off" oninput="engine.inputChange('${q.id}', this.value)">`;
+                    html = `<input type="${q.type}" id="in-${i}" value="${val}" placeholder="${phText}" autocomplete="off" oninput="engine.inputChange('${q.id}', this.value)">`;
                 } else if(q.type === 'date') {
                     html = `<input type="date" id="in-${i}" value="${val}" oninput="engine.inputChange('${q.id}', this.value)">`;
                 } else if(q.type === 'phone_complex') {
@@ -677,9 +680,9 @@
     function getGopQuestions(l) {
         const en = l==='en';
         return [
-            { id: 'patientName', type: 'text', label: en?'Patient Name':'Nome do Paciente', sub: en?'Missionary Full Name':'Nome Completo do Missionário' },
+            { id: 'patientName', type: 'text', label: en?'Missionary/Patient’s FULL Name':'Nome COMPLETO do Missionário/Paciente', sub: en?'First & Last':'Nome e Sobrenome' },
             { id: 'aetnaId', type: 'text', label: 'Aetna W ID #', sub: '' },
-            { id: 'dob', type: 'date', label: en?'Date of Birth':'Data de Nascimento', sub: '' },
+            { id: 'dob', type: 'date', label: en?'Missionary/Patient’s Date of Birth':'Data de Nascimento', sub: '' },
             { id: 'illness', type: 'text', label: en?'What is the nature of the illness/injury/medical complaint':'Qual é a natureza da doença/lesão/queixa médica', sub: en?'(A brief explanation of symptoms. Ex. Knee pain, sore throat, abdominal pain, etc.):': 'Uma breve explicação dos sintomas. Ex. Dor no joelho, dor de garganta, dor abdominal, etc.' },
             { id: 'serviceType', type: 'text', label: en?'Service Needed':'Serviço Necessário', sub: en?'ex: MD consult, ER visit, Hosptial Admission, etc.' : 'ex. consulta médica, visita ao pronto-socorro, internação hospitalar, etc.' },
             { id: 'serviceDate', type: 'date', label: en?'Date of Service':'Data do Serviço', sub: en?'planned or emergency' : 'planejada ou emergencial' },
