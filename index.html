@@ -71,13 +71,21 @@
         
         /* Inputs */
         .tf-input-group { width: 100%; margin-bottom: 10px; }
-        input[type="text"], input[type="email"], input[type="tel"], input[type="date"] {
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select {
             width: 100%; background: transparent; border: none;
             border-bottom: 2px solid var(--border); font-size: 1.5rem;
             padding: 8px 0; border-radius: 0; color: var(--primary);
             outline: none; transition: border-color 0.3s; font-family: 'Inter', sans-serif;
         }
-        input:focus { border-color: var(--primary); }
+        /* Special styling for the Clinic Dropdown */
+        select.clinic-dropdown {
+            font-size: 1.2rem;
+            white-space: pre-wrap;
+            text-overflow: ellipsis;
+        }
+        select.clinic-dropdown optgroup { font-size: 1rem; color: #333; font-style: normal; font-weight: 600; }
+        
+        input:focus, select:focus { border-color: var(--primary); }
         input::placeholder { color: #d2d2d7; }
 
         /* Phone */
@@ -214,6 +222,370 @@
     </div>
 
 <script>
+    // --- DATA: CLINICS ---
+    const CLINICS_DATA = [
+    {
+        "Clinic Name": "Clinica Avicena",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "BEIRA",
+        "Address": "Av. Poder Popular, Bairro Esturro,Av. Poder Popular, Bairro Esturro",
+        "Phone Number": "258847494133",
+        "Email Address": "avicena.clinic@intra.co.mz",
+        "Plus Code": "5R9P+H2Q, Beira",
+        "Google Maps Link": "https://maps.app.goo.gl/yPxSnvjEFdQV3WQF8"
+    },
+    {
+        "Clinic Name": "Clinica M.M.Q",
+        "Type of Clinic": "Hospital",
+        "CIty": "BEIRA",
+        "Address": "RUA ALFREDO LAWLY - ESTURRO, BEIRA TALHAO No.39,RUA ALFREDO LAWLY - ESTURRO, BEIRA TALHAO No.39",
+        "Phone Number": "258847327026",
+        "Email Address": "clinicaMMQ@gmail.com",
+        "Plus Code": "5RCW+4V Beira",
+        "Google Maps Link": "https://maps.app.goo.gl/eTAxKX9bToP1MKm49"
+    },
+    {
+        "Clinic Name": "Lac, Lda - Clinica And Laboratorio De Analises Clinicas-Lac,Lda [Beira]",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "BEIRA",
+        "Address": "RUA AIRES DE ORNELAS,RUA AIRES DE ORNELAS",
+        "Phone Number": "2583326761",
+        "Email Address": "lac@lac.co.mz",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Lenmed Private Hospital - Lt Clinica Medica,Limitada",
+        "Type of Clinic": "Hospital",
+        "CIty": "BEIRA",
+        "Address": "Estoril, Rua Carlos Pereira,Estoril, Rua Carlos Pereira",
+        "Phone Number": "258842613432",
+        "Email Address": "info@clinicalt.co.mz",
+        "Plus Code": "5VFX+F6, Beira",
+        "Google Maps Link": "https://maps.app.goo.gl/kWHpKnsLuYUyQssU9"
+    },
+    {
+        "Clinic Name": "Centro Medico Esperanca",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "CHIMOIO",
+        "Address": "TALHAO 12&17 BAIRRO CENTRO HIPICO,TALHAO 12&17 BAIRRO CENTRO HIPICO",
+        "Phone Number": "258823787307",
+        "Email Address": "SeRGIO.SjDCONSULT@GMAIL.COM",
+        "Plus Code": "VFV6+R82, Bairro Centro Hípico, Chimoio",
+        "Google Maps Link": "https://maps.app.goo.gl/Q71npY8g1ytEKE8W6"
+    },
+    {
+        "Clinic Name": "Clinica Fatima",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "CHIMOIO",
+        "Address": "Av. Do Trabalho,Av. Do Trabalho",
+        "Phone Number": "25825123669",
+        "Email Address": "clinicafatima00@gmail.com",
+        "Plus Code": "VFPH+GH Chimoio",
+        "Google Maps Link": "https://maps.app.goo.gl/nbLACHdnbSVndRLs9"
+    },
+    {
+        "Clinic Name": "Clinica Mais Saude",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "LICHINGA",
+        "Address": "Unnamed Road, Lichinga, Mozambique,Unnamed Road, Lichinga, Mozambique",
+        "Phone Number": "258873336677",
+        "Email Address": "clinicamaissaude.mz@gmail.com",
+        "Plus Code": "P6JV+2F Lichinga",
+        "Google Maps Link": "https://maps.app.goo.gl/AMBvq38q2qR5JxM89"
+    },
+    {
+        "Clinic Name": "Atlas Medclinic",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "MATEMA",
+        "Address": "Mall de Tete Loja 06, Bairro Chingodzi, Matema,Mall de Tete Loja 06, Bairro Chingodzi, Matema",
+        "Phone Number": "258870337108",
+        "Email Address": "",
+        "Plus Code": "RHQR+43 Tete",
+        "Google Maps Link": "https://maps.app.goo.gl/GgdqeCEidf4wCx6W7"
+    },
+    {
+        "Clinic Name": "Centro Medico Girassol",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "MOATIZE",
+        "Address": "Rua EN7 próximo da paragem Matxiqui-txiqui EN7, Bairro Chitata,EN7, Bairro Chitata",
+        "Phone Number": "258869518444",
+        "Email Address": "centromedicogirassollda@gmail.com",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Consultorio Saude Agora",
+        "Type of Clinic": "Consultor",
+        "CIty": "NACALA",
+        "Address": "Av. Eduardo Mondlane, Bairro Bloco 1, Cidade Alta,Av. Eduardo Mondlane, Bairro Bloco 1, Cidade Alta",
+        "Phone Number": "258872400014",
+        "Email Address": "",
+        "Plus Code": "CMVP+CF Nacala",
+        "Google Maps Link": "https://maps.app.goo.gl/3jVcydfhmrZ6ukfL6"
+    },
+    {
+        "Clinic Name": "Higia Consultorios Medicos",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NACALA",
+        "Address": "Bairro Bloco I, Avenida Julius Nyerere, N189,Bairro Bloco I, Avenida Julius Nyerere, N189",
+        "Phone Number": "258847999988",
+        "Email Address": "admin@Higiacm.com",
+        "Plus Code": "CMVR+J2M, Julius Nyerere Road, Nacala",
+        "Google Maps Link": "https://maps.app.goo.gl/nrYeYS7YVhWE6TpJ7"
+    },
+    {
+        "Clinic Name": "Lac, Lda - Clinica And Laboratorio De Analises Clinicas-Lac,Lda [Nacala]",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NACALA",
+        "Address": "Nacala,Nacala",
+        "Phone Number": "25826520391",
+        "Email Address": "lac@lac.co.mz",
+        "Plus Code": "CMRQ+GH4, Nacala",
+        "Google Maps Link": "https://maps.app.goo.gl/XPK72x3zM9sNnNb4A"
+    },
+    {
+        "Clinic Name": "Nacala Healthcare",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NACALA",
+        "Address": "Av. Eduardo Mondlane, Cidade baixa,Av. Eduardo Mondlane, Cidade baixa",
+        "Phone Number": "25884/87 911 0110",
+        "Email Address": "nacalaHealtHcare@gmail.com",
+        "Plus Code": "FM4H+HQ, Nacala",
+        "Google Maps Link": "https://maps.app.goo.gl/nUqaQJ8m5eHHiqvr7"
+    },
+    {
+        "Clinic Name": "Clinica Muahivire",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NAMPULA",
+        "Address": "Av. Samora Machel, 502,Av. Samora Machel, 502",
+        "Phone Number": "25884/823 930 004",
+        "Email Address": "clinicmuaHivire@gmail.com",
+        "Plus Code": "V7F7+9J Nampula",
+        "Google Maps Link": "https://maps.app.goo.gl/VSMu6SStQC8rzoaD7"
+    },
+    {
+        "Clinic Name": "Clinica Shifaa, Lda",
+        "Type of Clinic": "Hospital",
+        "CIty": "NAMPULA",
+        "Address": "Av. Maguiguana No 1949,Av. Maguiguana No 1949",
+        "Phone Number": "258844773662",
+        "Email Address": "SHIFAACONTAB@GMAIL.COM",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Clinica Universitaria Lurio",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NAMPULA",
+        "Address": "Bairro Marrere, Rua 4250,Bairro Marrere, Rua 4250",
+        "Phone Number": "258872400014",
+        "Email Address": "",
+        "Plus Code": "V6M2+3H5, Nampula",
+        "Google Maps Link": "https://maps.app.goo.gl/fJZRaxXGur1eQ59j8"
+    },
+    {
+        "Clinic Name": "Consultorio Medico Vossa Saude",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NAMPULA",
+        "Address": "Rua Muetasse, 2533 Bairro De Muahivire,Rua Muetasse, 2533 Bairro De Muahivire",
+        "Phone Number": "258878238455",
+        "Email Address": "clvosaude@gmail.com",
+        "Plus Code": "V6M2+FP6, Unnamed Road, Nampula",
+        "Google Maps Link": "https://maps.app.goo.gl/6AyzdkTqbL5wqEhy9"
+    },
+    {
+        "Clinic Name": "Consultrio Medico Arco Iris",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NAMPULA",
+        "Address": "Av. Josina Machel,Av. Josina Machel",
+        "Phone Number": "",
+        "Email Address": "",
+        "Plus Code": "V7H5+QR Nampula",
+        "Google Maps Link": "https://maps.app.goo.gl/3EsFU3hJZiJJEW6d6"
+    },
+    {
+        "Clinic Name": "Hospital Sorriso Privado",
+        "Type of Clinic": "Hospital",
+        "CIty": "NAMPULA",
+        "Address": "Rua de Sofala,Rua de Sofala",
+        "Phone Number": "25884/86 956 0001",
+        "Email Address": "geral@Hospitalprivadosorriso.co.mz",
+        "Plus Code": "V7F6+5C Nampula",
+        "Google Maps Link": "https://maps.app.goo.gl/pGp3W3QBjGeBRwu26"
+    },
+    {
+        "Clinic Name": "Lac, Lda - Clinica And Laboratorio De Analises Clinicas-Lac,Lda [Nampula]",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "NAMPULA",
+        "Address": "Avenida Josina Machel,Avenida Josina Machel",
+        "Phone Number": "2583213995",
+        "Email Address": "lac@lac.co.mz",
+        "Plus Code": "V7F9+8FX, Nampula",
+        "Google Maps Link": "https://maps.app.goo.gl/nVZ4W4neRBhozpRR7"
+    },
+    {
+        "Clinic Name": "Centro Medico Embondeiro",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "PEMBA",
+        "Address": "Estrada Nacional No.106, Centro Comercial Da China, Loja 1, Bairro Alto Gingone,Estrada Nacional No.106, Centro Comercial Da China, Loja 1, Bairro Alto Gingone",
+        "Phone Number": "258821641927",
+        "Email Address": "info@cmembondeiro.com",
+        "Plus Code": "2G2J+75 Pemba",
+        "Google Maps Link": "https://maps.app.goo.gl/BMoHf8RgguP1Q2ubA"
+    },
+    {
+        "Clinic Name": "Centro Medico Pro Vida",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "PEMBA",
+        "Address": "Av. Marginal - Bairro Eduardo Mondlane , Pemba,Av. Marginal - Bairro Eduardo Mondlane , Pemba",
+        "Phone Number": "258849888532",
+        "Email Address": "recepcao@provida.co.mz",
+        "Plus Code": "2HJ4+RV Pemba",
+        "Google Maps Link": "https://maps.app.goo.gl/NxMZwc3z8JR8SVn2A"
+    },
+    {
+        "Clinic Name": "Centro Medico Reviver,E.I",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "QUELIMANE",
+        "Address": "Av. Julius Nyerere N 1017,Av. Julius Nyerere N 1017",
+        "Phone Number": "258866120200",
+        "Email Address": "cm.reviver@gmail.com",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Consultorio Bons Sinais",
+        "Type of Clinic": "Consultor",
+        "CIty": "QUELIMANE",
+        "Address": "Av. 7 de Setembro, 516,Av. 7 de Setembro, 516",
+        "Phone Number": "258872229222",
+        "Email Address": "",
+        "Plus Code": "4VCV+H2 Quelimane",
+        "Google Maps Link": "https://maps.app.goo.gl/KHFPzAg1oYrUFr8d6"
+    },
+    {
+        "Clinic Name": "Centro Home Care",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "Av. Kenneth Kaunda, Ntali shopping,Av. Kenneth Kaunda, Ntali shopping",
+        "Phone Number": "258843434555",
+        "Email Address": "",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Centro Medico Embondeiro",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "BAIRRO CHINGODZI, TETE,BAIRRO CHINGODZI, TETE",
+        "Phone Number": "258821641927",
+        "Email Address": "secretaria.cembondeiro@gmail.com",
+        "Plus Code": "VJ7F+8G Tete",
+        "Google Maps Link": "https://maps.app.goo.gl/AqcLCU77zv3ssVpx7"
+    },
+    {
+        "Clinic Name": "Centro Medico Maxi Vida - MOATIZE",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "Bairri Chipanga. Estrada Nacional No. 7 - Vila De Moatize,Bairri Chipanga. Estrada Nacional No. 7 - Vila De Moatize",
+        "Phone Number": "25825220014",
+        "Email Address": "cmaxvida.cont@gmail.com",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Centro Medico Maxi Vida - Sede",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "Estrada Da Visao Mundial,Estrada Da Visao Mundial",
+        "Phone Number": "25825220014",
+        "Email Address": "cmaxivida@gmail.com",
+        "Plus Code": "",
+        "Google Maps Link": "https://maps.app.goo.gl/cPJPSST7bzC7NRBu9"
+    },
+    {
+        "Clinic Name": "Centro Medico Maxi Vida - TETE CITY",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "AV. EDUARDO MONDLANE,AV. EDUARDO MONDLANE",
+        "Phone Number": "258852470488",
+        "Email Address": "cmaxivida.limao@gmail.com",
+        "Plus Code": "VJ84+VHC, Tete",
+        "Google Maps Link": "https://maps.app.goo.gl/t8Bq39nLnw6VZbAq6"
+    },
+    {
+        "Clinic Name": "Centro Medico Okapi, Limitada",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "BAIRRO SAMORA MACHEL/CANONGOLA, ENZ, CIDADE DE TETE,BAIRRO SAMORA MACHEL/CANONGOLA, ENZ, CIDADE DE TETE",
+        "Phone Number": "258861132971 / 4761431",
+        "Email Address": "centromokapi@gmail.com",
+        "Plus Code": "RH4Q+4C3, Tete",
+        "Google Maps Link": "https://maps.app.goo.gl/pn4A7bxMEp7f9Lwc6"
+    },
+    {
+        "Clinic Name": "Centro Medico Santa Victoria",
+        "Type of Clinic": "Hospital",
+        "CIty": "TETE",
+        "Address": "EN7, Bairro Matundo,EN7, Bairro Matundo",
+        "Phone Number": "258820466062",
+        "Email Address": "recepcao@cmsv.co.mz",
+        "Plus Code": "VJ43+8W Tete",
+        "Google Maps Link": "https://maps.app.goo.gl/T6RxbTpCZkH6ptV46"
+    },
+    {
+        "Clinic Name": "Clinica Bom Sucesso",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "Bairro Chingodze, EN7,Bairro Chingodze, EN7",
+        "Phone Number": "258846372050",
+        "Email Address": "info@clinicabomsucesso.co.mz",
+        "Plus Code": "VJ9G+VRQ, Tete",
+        "Google Maps Link": "https://maps.app.goo.gl/DwurodgSakG8asVB7"
+    },
+    {
+        "Clinic Name": "Consultorio Medico Fonte Vida",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "EN7- Bairro Samora Machel,EN7- Bairro Samora Machel",
+        "Phone Number": "258871321560",
+        "Email Address": "recepcaocmfv@gmail.com",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Consultorio Medico Terra Rio,Lda",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "Bairro Matundo, EN7,Bairro Matundo, EN7",
+        "Phone Number": "258874444469",
+        "Email Address": "consultoriomedicoterrario@gmail.com",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    },
+    {
+        "Clinic Name": "Laboratorio De Diagnostico Clinico De Tete",
+        "Type of Clinic": "Laboratório",
+        "CIty": "TETE",
+        "Address": "BAIRRO FILIPE SAMUEL MAGAIA,BAIRRO FILIPE SAMUEL MAGAIA",
+        "Phone Number": "233232336201",
+        "Email Address": "laboratoriodiagclinicodetete@gmail.com",
+        "Plus Code": "VH2F+5M2, Tete",
+        "Google Maps Link": "https://maps.app.goo.gl/SZnLzwrBXctJBSFE8"
+    },
+    {
+        "Clinic Name": "Lac, Lda - Clinica And Laboratorio De Analises Clinicas-Lac,Lda [Tete]",
+        "Type of Clinic": "Policlínica - Grupo de médicos com laboratório, raio-X e instalações para tratamento.",
+        "CIty": "TETE",
+        "Address": "Avenida Josina Machel,Avenida Josina Machel",
+        "Phone Number": "25825242302",
+        "Email Address": "lac@lac.co.mz",
+        "Plus Code": "",
+        "Google Maps Link": ""
+    }
+    ];
+
     // --- TRANSLATIONS ---
     const STRINGS = {
         en: {
@@ -225,7 +597,7 @@
             patName: "Patient Name", aetnaId: "Aetna ID", patDob: "Date of Birth", illness: "Illness/Injury",
             servType: "Service Type", servDate: "Service Date", facName: "Facility Name", facAddr: "Address",
             facPhone: "Phone", phyName: "Physician", ccEmails: "CC Emails", copySuccess: "Copied!",
-            typeHere: "Type here..."
+            typeHere: "Type here...", otherMan: "Other / Manual Entry"
         },
         pt: {
             title: "Solicitação GOP", subtitle: "Selecione um administrador para começar.", newAdmin: "Novo Admin",
@@ -236,7 +608,7 @@
             patName: "Nome do Paciente", aetnaId: "ID Aetna", patDob: "Data de Nascimento", illness: "Doença/Lesão",
             servType: "Tipo de Serviço", servDate: "Data do Serviço", facName: "Instalação", facAddr: "Endereço",
             facPhone: "Telefone", phyName: "Médico", ccEmails: "E-mails (CC)", copySuccess: "Copiado!",
-            typeHere: "Digite aqui..."
+            typeHere: "Digite aqui...", otherMan: "Outro / Entrada Manual"
         }
     };
 
@@ -245,10 +617,33 @@
         aid: '<i class="ph ph-first-aid-kit"></i>', gear: '<i class="ph ph-user-gear"></i>', plus: '<i class="ph ph-plus"></i>'
     };
 
+    // --- DEFAULT ADMINS ---
+    const DEFAULT_ADMINS = [
+        {
+            name: "Elder Francisco Granja",
+            role: "Conselheiro Médico da Missão / Mission Health Advisor",
+            email: "francisco.granja@missionary.org",
+            phone: "+258 84 010 5212",
+            location: "Beira, Mozambique",
+            iconType: "male",
+            iconHTML: ICONS.male
+        },
+        {
+            name: "Sister Evelina Granja",
+            role: "Conselheiro Médico da Missão / Mission Health Advisor",
+            email: "evelina.granja@missionary.org",
+            phone: "+258 85 802 1089",
+            location: "Beira, Mozambique",
+            iconType: "female",
+            iconHTML: ICONS.female
+        }
+    ];
+
     // --- APP ENGINE ---
     const app = {
         lang: 'en',
-        admins: JSON.parse(localStorage.getItem('gop_admins')) || [],
+        // Modified initialization: If localstorage is null or empty, use DEFAULTS
+        admins: JSON.parse(localStorage.getItem('gop_admins')) || DEFAULT_ADMINS,
         currentAdmin: null,
         editIndex: -1, 
         currentFlow: null, // 'gop' or 'admin'
@@ -256,13 +651,16 @@
         generatedText: '',
 
         init: function() {
+            // Safety check: if parsed array was empty [] (from a manual clear), force defaults again
+            if(this.admins.length === 0) this.admins = DEFAULT_ADMINS;
+            
             this.updateLabels();
             this.renderProfiles();
             // Try to restore session on load
             this.restoreSession();
         },
 
-        // --- STATE MANAGEMENT (NEW) ---
+        // --- STATE MANAGEMENT ---
         saveSession: function() {
             const state = {
                 screen: document.querySelector('.screen.active')?.id,
@@ -529,7 +927,36 @@
                     </div><input type="hidden" id="in-${i}" value="${cur||''}">`;
                 } else if(q.type === 'map_search') {
                     html = `<input type="text" id="in-${i}" value="${val}" placeholder="Address or GPS" oninput="engine.inputChange('${q.id}', this.value)">
-                        <a href="#" class="map-helper" onclick="actions.openMap(event, 'in-${i}')"><i class="ph ph-map-pin"></i> Google Maps</a>`;
+                            <a href="#" class="map-helper" onclick="actions.openMap(event, 'in-${i}')"><i class="ph ph-map-pin"></i> Google Maps</a>`;
+                } else if(q.type === 'clinic_select') {
+                    // Sorting clinics by City then Name
+                    const sortedClinics = [...CLINICS_DATA].sort((a, b) => {
+                        const cityA = (a.CIty || "").toUpperCase();
+                        const cityB = (b.CIty || "").toUpperCase();
+                        if (cityA < cityB) return -1;
+                        if (cityA > cityB) return 1;
+                        return a['Clinic Name'].localeCompare(b['Clinic Name']);
+                    });
+
+                    // grouping
+                    let options = `<option value="">Select...</option>`;
+                    let currentCity = "";
+                    sortedClinics.forEach(cl => {
+                        const city = (cl.CIty || "Other").toUpperCase();
+                        if(city !== currentCity) {
+                            if(currentCity !== "") options += `</optgroup>`;
+                            options += `<optgroup label="${city}">`;
+                            currentCity = city;
+                        }
+                        const isSel = val === cl['Clinic Name'] ? 'selected' : '';
+                        options += `<option value="${cl['Clinic Name']}" ${isSel}>${cl['Clinic Name']}</option>`;
+                    });
+                    if(currentCity !== "") options += `</optgroup>`;
+                    
+                    // Add manual option
+                    options += `<option value="manual" ${val==='manual'?'selected':''}>${STRINGS[app.lang].otherMan}</option>`;
+
+                    html = `<select id="in-${i}" class="clinic-dropdown" onchange="engine.selectClinic(${i}, this.value)">${options}</select>`;
                 }
 
                 div.innerHTML = `<h2>${q.label}</h2>${q.sub ? `<span class="sub-text">${q.sub}</span>` : ''}<div class="tf-input-group">${html}</div>`;
@@ -543,13 +970,72 @@
             this.answers[key] = val;
             app.saveSession();
         },
+        
+        // AUTOFILL LOGIC
+        selectClinic: function(i, val) {
+            this.answers['facName'] = val; // Save selection to model
+            
+            if(val === 'manual' || val === '') {
+                 // Clean for manual entry
+                this.answers['facAddress'] = '';
+                this.answers['facPhone_code'] = '+258';
+                this.answers['facPhone_num'] = '';
+            } else {
+                // Find clinic data
+                const c = CLINICS_DATA.find(x => x['Clinic Name'] === val);
+                if(c) {
+                    // 1. Set Address
+                    let fullAddr = c.Address || '';
+                    if(c['Google Maps Link']) fullAddr += `, ${c['Google Maps Link']}`;
+                    this.answers['facAddress'] = fullAddr;
+
+                    // 2. Parse Phone (Assuming mostly +258)
+                    let rawPhone = (c['Phone Number'] || "").replace(/\D/g, ''); 
+                    let pCode = '+258';
+                    let pNum = rawPhone;
+
+                    // Simple logic to detect if country code is included in string
+                    if(rawPhone.startsWith('258')) {
+                        pNum = rawPhone.substring(3);
+                    } else if (rawPhone.startsWith('27')) {
+                        pCode = '+27';
+                        pNum = rawPhone.substring(2);
+                    }
+                    
+                    this.answers['facPhone_code'] = pCode;
+                    this.answers['facPhone_num'] = pNum;
+                }
+            }
+            // Re-render to propagate values to the (hidden) future slides or just save state
+            // In this engine, we just save state. When the user clicks NEXT, the next slide will
+            // initialize with the values we just set in this.answers.
+            
+            // However, we should also manually update the inputs in the DOM just in case the slides were already generated
+            // Iterate through questions to find indices
+            this.questions.forEach((q, idx) => {
+                if(q.id === 'facAddress') {
+                    const el = document.getElementById(`in-${idx}`);
+                    if(el) el.value = this.answers['facAddress'] || '';
+                }
+                if(q.id === 'facPhone') {
+                    const elNum = document.getElementById(`in-${idx}-num`);
+                    const elCode = document.getElementById(`in-${idx}-code`);
+                    if(elNum) elNum.value = this.answers['facPhone_num'] || '';
+                    if(elCode) elCode.value = this.answers['facPhone_code'] || '+258';
+                    // Trigger format logic
+                    if(elNum) this.fmtPhone(idx, 'facPhone');
+                }
+            });
+
+            app.saveSession();
+        },
 
         update: function() {
             document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
             const s = document.getElementById(`slide-${this.index}`);
             if(s) {
                 s.classList.add('active');
-                setTimeout(() => { const i = s.querySelector('input:not([type=hidden])'); if(i) i.focus(); }, 100);
+                setTimeout(() => { const i = s.querySelector('input:not([type=hidden]), select'); if(i) i.focus(); }, 100);
             }
             const p = ((this.index+1)/this.questions.length)*100;
             document.getElementById('progress-bar').style.width = `${p}%`;
@@ -629,7 +1115,7 @@
 
     // --- HELPER ACTIONS ---
     const actions = {
-        openMap: (e, id) => { e.preventDefault(); window.open(`https://maps.google.com/?q=${encodeURIComponent(v)}`); },
+        openMap: (e, id) => { e.preventDefault(); const v = document.getElementById(id).value; window.open(`https://maps.google.com/?q=${encodeURIComponent(v)}`); },
         generateFullText: () => {
             const d = app.formData, a = app.currentAdmin, s = STRINGS[app.lang];
             const L = (l, v) => `${l}: ${v || 'N/A'}`;
@@ -686,7 +1172,10 @@
             { id: 'illness', type: 'text', label: en?'What is the nature of the illness/injury/medical complaint':'Qual é a natureza da doença/lesão/queixa médica', sub: en?'(A brief explanation of symptoms. Ex. Knee pain, sore throat, abdominal pain, etc.):': 'Uma breve explicação dos sintomas. Ex. Dor no joelho, dor de garganta, dor abdominal, etc.' },
             { id: 'serviceType', type: 'text', label: en?'Service Needed':'Serviço Necessário', sub: en?'ex: MD consult, ER visit, Hosptial Admission, etc.' : 'ex. consulta médica, visita ao pronto-socorro, internação hospitalar, etc.' },
             { id: 'serviceDate', type: 'date', label: en?'Date of Service':'Data do Serviço', sub: en?'planned or emergency' : 'planejada ou emergencial' },
-            { id: 'facName', type: 'text', label: en?'Facility Name':'Nome da Instalação/Provedor', sub: en? "please be as specific as possible with facility provider's name" : 'seja o mais específico possível com o nome da instalação/provedor' },
+            
+            // UPDATED: Changed from 'text' to 'clinic_select'
+            { id: 'facName', type: 'clinic_select', label: en?'Facility Name':'Nome da Instalação/Provedor', sub: en? "Select from list or choose 'Manual Entry' for new clinics" : 'Selecione na lista ou escolha "Entrada Manual"' },
+            
             { id: 'facAddress', type: 'map_search', label: en?'Facility/Provider address/GPS location':'Endereço da instalação/provedor/localização GPS:', sub: '' },
             { id: 'facPhone', type: 'phone_complex', label: en?'Facility Phone':'Telefone do Hospital', sub: en?'Reception/ER':'Recepção/Emergência' },
             { id: 'phyName', type: 'text', label: en?'Physician Name':'Nome do Médico', sub: en?'Optional - If known':'Opcional - se conhecido', optional: true },
